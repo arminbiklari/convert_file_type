@@ -15,9 +15,6 @@ def make_json(csvpath, jsonpath): # input 2 parameters for path of files (csv an
 
     with open(jsonpath,'w', encoding='utf_8') as jsonreader: # oprn file for write json 
         jsonreader.write(json.dumps(jdict, indent=0)) # dump dictionary into json file 
-# create list for keep path of jsons files         
-jsonlist =["/home/xubuntu/pt/python_project/convert_file_type/test.json", "/home/xubuntu/pt/python_project/convert_file_type/test2.json"]
-# function for convert json to csv 
 def maske_csv(jsonlist, csvpath):
     # print(type(jsonlist))
     ## check if jdsonlist is a dictionary or a path 
@@ -41,21 +38,31 @@ def maske_csv(jsonlist, csvpath):
             csvw = csv.DictWriter(csvwriter, fieldnames= headers)
             csvw.writeheader()
             csvw.writerow(jsonlist)
-def creat_db(databasename):
+def create_db(databasename, password, user, host):
     try:
         print("connecting to database ...")
-        connection= mysql.connector.connect(user='armin', password='QWEr!@#4', host='127.0.0.1')    
+        connection= mysql.connector.connect(user=user, password=password, host=host)    
+        cursor = connection.cursor()
         print("connected !! ")
     except:
         print("connot connect to database !!")
-    cursor = connection.cursor()
     try:
-        cursor.execute("CREATE DATABASE %s" % databasename)
+        cursor.execute("CREATE DATABASE %s DEFAULT CHARACTER SET utf8;" % databasename)
+        connection.commit()
     except:
         print("database not create because its exist !!")
 
-        connection.commit()
+def json_to_excel(execlpath, jsonpath):
+    with open(jsonpath, encoding='utf_8') as jsonreader : # open file for read json file 
+        data = json.load(jsonreader) ## load json data in Dictionary
+        df =pd.DataFrame(data) ## create a dataframe 
+        df.to_excel(execlpath) ## insert dataframe in e excel
 
-
-# make_json("/home/xubuntu/pt/python_project/test.csv", "test.json")
-# maske_csv(jsonlist, "/home/xubuntu/pt/python_project/convert_file_type/test.csv")
+    pass      
+def excel_to_json(excelpath, jsonpath):
+    excel_dataframe = pd.read_excel(excelpath).to_dict()  ## insert exce ldataframe in a variable as a dictionary 
+    with open(jsonpath, 'w', encoding='utf_8') as jsonwriter:
+        jsonwriter.write(json.dumps(excel_dataframe, indent=0))
+jsonlist =["/home/xubuntu/pt/python_project/convert_file_type/test.json", "/home/xubuntu/pt/python_project/convert_file_type/test2.json"]
+excelpath = "/home/xubuntu/pt/python_project/phone_price/test.xlsx" ## path of exel 
+jsonpath = "/home/xubuntu/pt/python_project/phone_price/json2.json" ## path of json 
